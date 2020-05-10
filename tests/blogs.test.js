@@ -24,7 +24,9 @@ describe('total likes', () => {
 
 // MOST BLOGS ===========================
 describe('most blogs', () => {
-  test.only('dummy to be one', () => {
-    expect(mostBlogs(blogs)).toBe(1);
+  test('when list has many blogs return the author with the most amount of blogs as an onject. The return value also contains the number of blogs the top author has', () => {
+    const result = mostBlogs(blogs);
+
+    expect(result).toMatchObject({ author: 'Robert C. Martin', blogs: 3 });
   });
 });
