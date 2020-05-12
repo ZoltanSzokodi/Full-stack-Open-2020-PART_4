@@ -1,5 +1,5 @@
 const errorHandler = (err, req, res, next) => {
-  console.log(err.message);
+  // console.log(err.message);
 
   // Mongoose bad object id
   if (err.name === 'CastError')
@@ -13,7 +13,7 @@ const errorHandler = (err, req, res, next) => {
 
   // Mongoose validaton errors
   if (err.name === 'ValidationError') {
-    console.log(err);
+    // console.log(err);
     const message = Object.values(err.errors)
       .map(val => val.message)
       .join(' ');

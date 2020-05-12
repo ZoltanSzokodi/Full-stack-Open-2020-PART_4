@@ -10,12 +10,12 @@ const blogSchema = new mongoose.Schema({
   },
   author: {
     type: String,
-    required: true,
+    required: [true, 'Please add an author'],
     minlength: 5,
   },
   url: {
     type: String,
-    required: true,
+    required: [true, 'Please add a url'],
   },
   likes: {
     type: Number,
@@ -38,6 +38,7 @@ blogSchema.set('toJSON', {
     returnedObject.id = returnedObject._id.toString();
     delete returnedObject._id;
     delete returnedObject.__v;
+    delete returnedObject.createdAt;
   },
 });
 

@@ -4,6 +4,9 @@ const app = require('../app.js');
 const api = supertest(app);
 const Blog = require('../models/Blog');
 const initialBlogs = require('./data_for_testing').blogs;
+const singleBlog = require('./data_for_testing').blog;
+
+const { blogsInDb, nonExistingId } = require('./test_helper');
 
 // TO RUN TEST ONLY HERE -> "$ npm test -- tests/blogs_api.test.js"
 
@@ -20,6 +23,7 @@ beforeEach(async () => {
   await Promise.all(promiseArray);
 });
 
+// TEST GROUP FOR GETING DATA =======================================
 describe('When there is initially some blogs saved', () => {
   test('Blogs are returned as JSON', async () => {
     await api
@@ -28,64 +32,99 @@ describe('When there is initially some blogs saved', () => {
       .expect('Content-Type', /application\/json/);
   });
 
-  test('The returned blogs _id key is formatted correctly (id)', async () => {
+  test('All blogs are returned', async () => {
     const res = await api.get('/api/blogs');
 
-    // const blogsArr = res.body.map(blog => blog);
+    expect(res.body).toHaveLength(initialBlogs.length);
+  });
+
+  test('The returned blogs _id key is formatted correctly (id)', async () => {
+    const res = await api.get('/api/blogs');
 
     res.body.forEach(blog => {
       expect(blog.id).toBeDefined();
     });
   });
 
-  test('All blogs are returned', async () => {
-    const res = await api.get('/api/blogs');
+  test('A specific blog can be viewed', async () => {
+    const blogs = await blogsInDb();
 
-    expect(res.body).toHaveLength(initialBlogs.length);
+    const blog = blogs[0];
+
+    const res = await api
+      .get(`/api/blogs/${blog.id}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/);
+
+    expect(res.body).toEqual(blog);
+  });
+
+  test('fails with statuscode 404 if note does not exist', async () => {
+    const nonExistId = await nonExistingId();
+
+    console.log(nonExistId);
+
+    await api.get(`/api/blogs/${nonExistId}`).expect(404);
+  });
+
+  test('fails with statuscode 400 if id is formatted incorrectly', async () => {
+    const incorrectId = 'gs2z4u2zdh82zd8384z4c';
+
+    await api.get(`/api/blogs/${incorrectId}`).expect(400);
   });
 });
 
-describe('Addition of a new blog', () => {
+describe('Addition/update/remove of a blog', () => {
   test('After posting a new blog the blogs array in the DB increases by one and the the new content is correct', async () => {
-    const newBlog = {
-      title: 'Jest Backend Testing',
-      author: 'Zoltan Szokodi',
-      url: 'https://myblog.com/test',
-      likes: 42,
-    };
-
     await api
       .post('/api/blogs')
-      .send(newBlog)
+      .send(singleBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/);
 
-    const res = await api.get('/api/blogs');
+    const blogs = await blogsInDb();
 
-    expect(res.body).toHaveLength(initialBlogs.length + 1);
+    expect(blogs).toHaveLength(initialBlogs.length + 1);
 
-    // const blogsArr = res.body.map(blog => blog);
-    console.log(res.body);
-
-    expect(res.body[res.body.length - 1]).toMatchObject(newBlog);
+    expect(blogs[blogs.length - 1]).toMatchObject(singleBlog);
   });
 
-  test('If the likes property is missing from the request, it will default to the value 0', async () => {
-    const newBlog = {
-      title: 'Jest Backend Testing 2',
-      author: 'Zoltan Szokodi',
-      url: 'https://myblog.com/test2',
-    };
+  test('If the title is missing the server respons with 400', async () => {
+    const blogCopy = { ...singleBlog };
+    delete blogCopy.title;
 
     await api
       .post('/api/blogs')
-      .send(newBlog)
+      .send(blogCopy)
+      .expect(400)
+      .expect('Content-Type', /application\/json/);
+  });
+
+  test('If the likes property is missing, it will default to the value 0', async () => {
+    const blogCopy = { ...singleBlog };
+    delete blogCopy.likes;
+
+    await api
+      .post('/api/blogs')
+      .send(blogCopy)
       .expect(201)
       .expect('Content-Type', /application\/json/);
 
-    const res = await api.get('/api/blogs');
+    const res = await blogsInDb();
 
-    expect(res.body[res.body.length - 1].likes).toBe(0);
+    expect(res[res.length - 1].likes).toBe(0);
+  });
+
+  test('When a blog is deleted the server responds correctly', async () => {
+    const blogs = await blogsInDb();
+
+    const blogToDelete = blogs[1];
+
+    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(200);
+
+    const blogsAfterDelete = await blogsInDb();
+
+    expect(blogsAfterDelete.length).toBe(blogs.length - 1);
   });
 });
 
