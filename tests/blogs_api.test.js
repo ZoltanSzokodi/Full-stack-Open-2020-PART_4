@@ -46,7 +46,7 @@ describe('When there is initially some blogs saved', () => {
 });
 
 describe('Addition of a new blog', () => {
-  test('After posting a new blog the blogs array in the DB increases by one', async () => {
+  test('After posting a new blog the blogs array in the DB increases by one and the the new content is correct', async () => {
     const newBlog = {
       title: 'Jest Backend Testing',
       author: 'Zoltan Szokodi',
@@ -65,6 +65,7 @@ describe('Addition of a new blog', () => {
     expect(res.body).toHaveLength(initialBlogs.length + 1);
 
     // const blogsArr = res.body.map(blog => blog);
+    console.log(res.body);
 
     expect(res.body[res.body.length - 1]).toMatchObject(newBlog);
   });

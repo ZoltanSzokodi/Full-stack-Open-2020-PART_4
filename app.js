@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
 const blogsRouter = require('./controllers/blogs');
+const errorHandler = require('./middleware/errorHandler');
 require('colors');
 
 const app = express();
@@ -29,6 +30,14 @@ app.use(cors());
 
 // ROUTES =========================================
 app.use('/api/blogs', blogsRouter);
+
+// Handle unknown endpoint
+const unknownEndpoint = (req, res) => {
+  res.status(404).send({ error: 'unknown endpoint' });
+};
+
+app.use(errorHandler);
+app.use(unknownEndpoint);
 
 // Handle unhandled promise rejection (DB ERROR)
 process.on('unhandledRejection', (error, promise) => {
