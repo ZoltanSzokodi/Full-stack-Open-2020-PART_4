@@ -56,6 +56,8 @@ describe('When there is initially some blogs saved', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/);
 
+    console.log(res.body, blog);
+
     expect(res.body).toEqual(blog);
   });
 

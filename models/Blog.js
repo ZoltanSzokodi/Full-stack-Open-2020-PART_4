@@ -21,6 +21,7 @@ const blogSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  // createdAt: Date,
   createdAt: {
     type: Date,
     default: Date.now,
@@ -36,9 +37,9 @@ blogSchema.plugin(uniqueValidator, {
 blogSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
+    returnedObject.createdAt = returnedObject.createdAt.toJSON();
     delete returnedObject._id;
     delete returnedObject.__v;
-    delete returnedObject.createdAt;
   },
 });
 
