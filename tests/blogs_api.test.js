@@ -10,7 +10,7 @@ const { blogsInDb, nonExistingId } = require('./test_helper');
 
 // TO RUN TEST ONLY HERE -> "$ npm test -- tests/blogs_api.test.js"
 
-// Before running the test reset the test-collection in the DB
+// Before running the tests reset the test-blog-list/blogs in the DB
 beforeEach(async () => {
   await Blog.deleteMany({});
 
@@ -23,7 +23,7 @@ beforeEach(async () => {
   await Promise.all(promiseArray);
 });
 
-// TEST GROUP FOR GETING DATA =======================================
+// BLOG TESTS =======================================
 describe('When there is initially some blogs saved', () => {
   test('Blogs are returned as JSON', async () => {
     await api
@@ -56,15 +56,13 @@ describe('When there is initially some blogs saved', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/);
 
-    console.log(res.body, blog);
-
     expect(res.body).toEqual(blog);
   });
 
   test('fails with statuscode 404 if note does not exist', async () => {
     const nonExistId = await nonExistingId();
 
-    console.log(nonExistId);
+    // console.log(nonExistId);
 
     await api.get(`/api/blogs/${nonExistId}`).expect(404);
   });
@@ -75,6 +73,8 @@ describe('When there is initially some blogs saved', () => {
     await api.get(`/api/blogs/${incorrectId}`).expect(400);
   });
 });
+
+// ---------------------------------------------------------------
 
 describe('Addition/update/remove of a blog', () => {
   test('After posting a new blog the blogs array in the DB increases by one and the the new content is correct', async () => {

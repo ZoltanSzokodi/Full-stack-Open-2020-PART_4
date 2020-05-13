@@ -1,49 +1,39 @@
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 
-const blogSchema = new mongoose.Schema({
-  title: {
+const userSchema = new mongoose.Schema({
+  username: {
     type: String,
-    required: [true, 'Please add a title'],
-    minlength: 5,
     unique: true,
   },
-  author: {
-    type: String,
-    required: [true, 'Please add an author'],
-    minlength: 5,
-  },
-  url: {
-    type: String,
-    required: [true, 'Please add a url'],
-  },
-  likes: {
-    type: Number,
-    default: 0,
-  },
+  name: String,
+  passwordHash: String,
   createdAt: {
     type: Date,
     default: Date.now,
   },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  },
+  blogs: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Blog',
+    },
+  ],
 });
 
 // Mongoose unique validator
-blogSchema.plugin(uniqueValidator, {
+userSchema.plugin(uniqueValidator, {
   message: 'This {PATH} is already taken.',
 });
 
 // Change the 'toJSON' method to re-name the and stringify the 'id' field
-blogSchema.set('toJSON', {
+userSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
     returnedObject.createdAt = returnedObject.createdAt.toJSON();
     delete returnedObject._id;
     delete returnedObject.__v;
+    delete returnedObject.passwordHash;
   },
 });
 
-module.exports = mongoose.model('Blog', blogSchema);
+module.exports = mongoose.model('User', userSchema);
