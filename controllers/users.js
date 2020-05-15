@@ -9,6 +9,7 @@ require('express-async-errors');
 usersRouter.get('/', async (req, res) => {
   const users = await User.find({}).populate('blogs', {
     title: 1,
+    author: 1,
     createdAt: 1,
   });
 
@@ -20,7 +21,10 @@ usersRouter.get('/', async (req, res) => {
 // @access  Public
 usersRouter.post('/', async (req, res) => {
   const { username, name, password } = req.body;
-  // const saltRounds = 10;
+
+  if (!password || password.length < 3)
+    return res.status(400).json({ error: 'Password minimum length is 3' });
+
   const salt = await bcrypt.genSalt(10);
   const passwordHash = await bcrypt.hash(password, salt);
 

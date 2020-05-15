@@ -5,7 +5,9 @@ const morgan = require('morgan');
 const connectDB = require('./config/db');
 const blogsRouter = require('./controllers/blogs');
 const usersRouter = require('./controllers/users');
+const loginRouter = require('./controllers/login');
 const errorHandler = require('./middleware/errorHandler');
+const tokenExtractor = require('./middleware/tokenExtractor');
 require('colors');
 
 const app = express();
@@ -29,9 +31,13 @@ connectDB(MONGODB_URI);
 app.use(express.json());
 app.use(cors());
 
+// Extract token from req header
+app.use(tokenExtractor);
+
 // ROUTES =========================================
 app.use('/api/blogs', blogsRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/login', loginRouter);
 
 // Handle unknown endpoint
 const unknownEndpoint = (req, res) => {

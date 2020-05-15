@@ -3,6 +3,7 @@ const supertest = require('supertest');
 const app = require('../app.js');
 const api = supertest(app);
 const Blog = require('../models/Blog');
+const User = require('../models/User');
 const initialBlogs = require('./data_for_testing').blogs;
 const singleBlog = require('./data_for_testing').blog;
 

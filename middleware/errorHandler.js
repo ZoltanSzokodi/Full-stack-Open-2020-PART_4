@@ -20,6 +20,12 @@ const errorHandler = (err, req, res, next) => {
     return res.status(400).json({ error: message });
   }
 
+  if (err.name === 'JsonWebTokenError') {
+    return res.status(401).json({
+      error: 'invalid token',
+    });
+  }
+
   res.status(err.statusCode || 500).json({
     error: err.message || 'Server Error',
   });
