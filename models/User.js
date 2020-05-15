@@ -29,7 +29,10 @@ userSchema.plugin(uniqueValidator, {
 userSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
-    returnedObject.createdAt = returnedObject.createdAt.toJSON();
+    // The createdAt attribute may not always be definde (in populate for example)
+    if (returnedObject.createdAt) {
+      returnedObject.createdAt = returnedObject.createdAt.toJSON();
+    }
     delete returnedObject._id;
     delete returnedObject.__v;
     delete returnedObject.passwordHash;

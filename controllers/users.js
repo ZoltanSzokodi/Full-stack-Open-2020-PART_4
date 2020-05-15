@@ -3,6 +3,18 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 require('express-async-errors');
 
+// @desc    Get all users
+// @route   GET /api/users
+// @access  Public
+usersRouter.get('/', async (req, res) => {
+  const users = await User.find({}).populate('blogs', {
+    title: 1,
+    createdAt: 1,
+  });
+
+  res.send(users);
+});
+
 // @desc    Create a new user
 // @route   POST /api/users
 // @access  Public
@@ -21,15 +33,6 @@ usersRouter.post('/', async (req, res) => {
   const savedUser = await user.save();
 
   res.status(201).json(savedUser);
-});
-
-// @desc    Get all users
-// @route   GET /api/users
-// @access  Public
-usersRouter.get('/', async (req, res) => {
-  const users = await User.find({});
-
-  res.send(users);
 });
 
 module.exports = usersRouter;
