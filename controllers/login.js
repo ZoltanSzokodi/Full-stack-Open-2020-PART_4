@@ -18,10 +18,10 @@ exports.login = async (req, res) => {
   if (!(user && passwordCorrect))
     return res.status(401).json({ error: 'Invalid credentials' });
 
-  const { name, username } = user;
+  const { name, username, _id } = user;
 
   const userCredentials = {
-    id: user._id,
+    id: _id,
     username,
   };
 
@@ -29,6 +29,7 @@ exports.login = async (req, res) => {
 
   res.send({
     token,
+    id: _id,
     name,
     username,
   });
