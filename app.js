@@ -3,9 +3,6 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
-const blogsRouter = require('./controllers/blogs');
-const usersRouter = require('./controllers/users');
-const loginRouter = require('./controllers/login');
 const errorHandler = require('./middleware/errorHandler');
 const tokenExtractor = require('./middleware/tokenExtractor');
 require('colors');
@@ -35,9 +32,13 @@ app.use(cors());
 app.use(tokenExtractor);
 
 // ROUTES =========================================
-app.use('/api/blogs', blogsRouter);
-app.use('/api/users', usersRouter);
-app.use('/api/login', loginRouter);
+const blogs = require('./routes/blogs');
+const users = require('./routes/users');
+const login = require('./routes/login');
+
+app.use('/api/blogs', blogs);
+app.use('/api/users', users);
+app.use('/api/login', login);
 
 // Handle unknown endpoint
 const unknownEndpoint = (req, res) => {

@@ -1,4 +1,4 @@
-const usersRouter = require('express').Router();
+// const usersRouter = require('express').Router();
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 require('express-async-errors');
@@ -6,7 +6,7 @@ require('express-async-errors');
 // @desc    Get all users
 // @route   GET /api/users
 // @access  Public
-usersRouter.get('/', async (req, res) => {
+exports.getAllUsers = async (req, res) => {
   const users = await User.find({}).populate('blogs', {
     title: 1,
     author: 1,
@@ -14,12 +14,12 @@ usersRouter.get('/', async (req, res) => {
   });
 
   res.send(users);
-});
+};
 
 // @desc    Create a new user
 // @route   POST /api/users
 // @access  Public
-usersRouter.post('/', async (req, res) => {
+exports.postNewUser = async (req, res) => {
   const { username, name, password } = req.body;
 
   if (!password || password.length < 3)
@@ -37,6 +37,4 @@ usersRouter.post('/', async (req, res) => {
   const savedUser = await user.save();
 
   res.status(201).json(savedUser);
-});
-
-module.exports = usersRouter;
+};

@@ -1,4 +1,4 @@
-const loginRouter = require('express').Router();
+// const loginRouter = require('express').Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -6,7 +6,8 @@ const bcrypt = require('bcryptjs');
 // @desc    Login user
 // @route   POST /api/login
 // @access  Public
-loginRouter.post('/', async (req, res) => {
+exports.login = async (req, res) => {
+  // console.log(req.body);
   const user = await User.findOne({ username: req.body.username });
 
   const passwordCorrect =
@@ -31,6 +32,4 @@ loginRouter.post('/', async (req, res) => {
     name,
     username,
   });
-});
-
-module.exports = loginRouter;
+};

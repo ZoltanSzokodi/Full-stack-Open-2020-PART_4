@@ -1,4 +1,4 @@
-const blogsRouter = require('express').Router();
+// const blogsRouter = require('express').Router();
 const jwt = require('jsonwebtoken');
 const Blog = require('../models/Blog');
 const User = require('../models/User');
@@ -7,31 +7,28 @@ require('express-async-errors');
 // @desc    Get all blogs
 // @route   GET /api/blogs
 // @access  Public
-blogsRouter.get('/', async (req, res) => {
+exports.getAllBlogs = async (req, res) => {
   const blogs = await Blog.find({}).populate('user', { name: 1, username: 1 });
 
   res.send(blogs);
-});
+};
 
 // @desc    Get a single blog
 // @route   GET /api/blogs/:id
 // @access  Public
-blogsRouter.get('/:id', async (req, res) => {
+exports.getBlog = async (req, res) => {
   const blog = await Blog.findById(req.params.id);
 
   if (!blog) return res.status(404).json({ error: 'Blog not found' });
 
   res.send(blog);
-});
+};
 
 // @desc    Post a new blog
 // @route   POST /api/blogs
 // @access  Private
-blogsRouter.post('/', async (req, res) => {
+exports.postNewBlog = async (req, res) => {
   const { title, author, url } = req.body;
-  // const token = extractToken(req);
-
-  console.log(req.token);
 
   if (!req.token)
     return res.status(401).json({
@@ -55,12 +52,12 @@ blogsRouter.post('/', async (req, res) => {
   await user.save();
 
   res.status(201).json(savedBlog);
-});
+};
 
 // @desc    Update a blog
 // @route   PUT /api/blogs/:id
 // @access  Private
-blogsRouter.put('/:id', async (req, res) => {
+exports.updateBlog = async (req, res) => {
   if (!req.token)
     return res.status(401).json({
       error: 'User must be signed in to perform this action',
@@ -84,12 +81,12 @@ blogsRouter.put('/:id', async (req, res) => {
   });
 
   res.send(blog);
-});
+};
 
 // @desc    Delete a blog
 // @route   DELETE /api/blogs/:id
 // @access  Private
-blogsRouter.delete('/:id', async (req, res) => {
+exports.deleteBlog = async (req, res) => {
   if (!req.token)
     return res.status(401).json({
       error: 'User must be signed in to perform this action',
@@ -108,6 +105,29 @@ blogsRouter.delete('/:id', async (req, res) => {
   await blog.remove();
 
   res.status(200).json({ message: 'Blog has been removed' });
-});
+};
 
-module.exports = blogsRouter;
+// @desc    Like a blog
+// @route   PUT /api/blogs/:id/likes
+// @access  Private
+// exports.likePost = async (req, res) => {
+//   const post = await Post.findById(req.params.id);
+
+//   const isLiked = post.likes.some(like => like.user.toString() === req.user.id);
+
+//   if (isLiked) {
+//     return next(
+//       new ErrorResponse('This route has already been liked by user', 401)
+//     );
+//   }
+
+//   post.likes.unshift({ user: req.user.id });
+
+//   await post.save();
+
+//   res.status(200).json({
+//     success: true,
+//     count: post.likes.length,
+//     data: post.likes,
+//   });
+// };
