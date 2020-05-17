@@ -110,24 +110,59 @@ exports.deleteBlog = async (req, res) => {
 // @desc    Like a blog
 // @route   PUT /api/blogs/:id/likes
 // @access  Private
-// exports.likePost = async (req, res) => {
-//   const post = await Post.findById(req.params.id);
+exports.likePost = async (req, res) => {
+  if (!req.token)
+    return res.status(401).json({
+      error: 'User must be signed in to perform this action',
+    });
 
-//   const isLiked = post.likes.some(like => like.user.toString() === req.user.id);
+  const decodedToken = jwt.verify(req.token, process.env.JWT_SECRET);
 
-//   if (isLiked) {
-//     return next(
-//       new ErrorResponse('This route has already been liked by user', 401)
-//     );
-//   }
+  const blog = await Blog.findById(req.params.id);
 
-//   post.likes.unshift({ user: req.user.id });
+  const isLiked = blog.likes.some(like => like.toString() === decodedToken.id);
 
-//   await post.save();
+  if (isLiked)
+    return res.status(403).json({ error: 'User has already liked this blog' });
 
-//   res.status(200).json({
-//     success: true,
-//     count: post.likes.length,
-//     data: post.likes,
-//   });
-// };
+  blog.likes.unshift(decodedToken.id);
+
+  await blog.save();
+
+  res.status(200).json({
+    message: 'Blog liked',
+  });
+};
+
+// @desc    Unlike post
+// @route   DELETE /api/blogs/:id/likes
+// @access  Private
+exports.unlikePost = async (req, res, next) => {
+  if (!req.token)
+    return res.status(401).json({
+      error: 'User must be signed in to perform this action',
+    });
+
+  const decodedToken = jwt.verify(req.token, process.env.JWT_SECRET);
+
+  const blog = await Blog.findById(req.params.id);
+
+  const isLiked = blog.likes.some(like => like.toString() === decodedToken.id);
+
+  if (!isLiked)
+    return res
+      .status(403)
+      .json({ error: 'User has already unliked this blog' });
+
+  const likeToRemove = blog.likes.find(
+    like => like.toString() === decodedToken.id
+  );
+
+  blog.likes.splice(blog.likes.indexOf(likeToRemove), 1);
+
+  await blog.save();
+
+  res.status(200).json({
+    message: 'Blog unliked',
+  });
+};

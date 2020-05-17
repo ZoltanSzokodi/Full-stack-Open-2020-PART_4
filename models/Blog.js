@@ -17,10 +17,10 @@ const blogSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add a url'],
   },
-  likes: {
-    type: Number,
-    default: 0,
-  },
+  // likes: {
+  //   type: Number,
+  //   default: 0,
+  // },
   createdAt: {
     type: Date,
     default: Date.now,
