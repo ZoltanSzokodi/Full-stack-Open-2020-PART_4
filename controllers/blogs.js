@@ -48,10 +48,15 @@ exports.postNewBlog = async (req, res) => {
 
   const savedBlog = await blog.save();
 
+  const responseBlog = await Blog.findById(savedBlog._id).populate('user', {
+    name: 1,
+    username: 1,
+  });
+
   user.blogs = user.blogs.concat(savedBlog._id);
   await user.save();
 
-  res.status(201).json(savedBlog);
+  res.status(201).json(responseBlog);
 };
 
 // @desc    Update a blog
@@ -118,7 +123,10 @@ exports.likePost = async (req, res) => {
 
   const decodedToken = jwt.verify(req.token, process.env.JWT_SECRET);
 
-  const blog = await Blog.findById(req.params.id);
+  const blog = await Blog.findById(req.params.id).populate('user', {
+    name: 1,
+    username: 1,
+  });
 
   const isLiked = blog.likes.some(like => like.toString() === decodedToken.id);
 
@@ -129,9 +137,7 @@ exports.likePost = async (req, res) => {
 
   await blog.save();
 
-  res.status(200).json({
-    message: 'Blog liked',
-  });
+  res.send(blog);
 };
 
 // @desc    Unlike post
@@ -145,7 +151,10 @@ exports.unlikePost = async (req, res, next) => {
 
   const decodedToken = jwt.verify(req.token, process.env.JWT_SECRET);
 
-  const blog = await Blog.findById(req.params.id);
+  const blog = await Blog.findById(req.params.id).populate('user', {
+    name: 1,
+    username: 1,
+  });
 
   const isLiked = blog.likes.some(like => like.toString() === decodedToken.id);
 
@@ -162,7 +171,5 @@ exports.unlikePost = async (req, res, next) => {
 
   await blog.save();
 
-  res.status(200).json({
-    message: 'Blog unliked',
-  });
+  res.send(blog);
 };
